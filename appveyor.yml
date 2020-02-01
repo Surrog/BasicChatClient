@@ -1,0 +1,16 @@
+image:
+- Visual Studio 2019
+clone_folder: C:\project\BasicChatClient
+build_script:
+- cmd: >-
+    mkdir build
+
+    cd build
+    
+    cmake C:\project\BasicChatClient -G "Visual Studio 16 2019"
+    
+    cmake --build .
+
+    cmake --build . --config Release
+    
+

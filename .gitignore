@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+*.tlog
+*.pdb
+*.log
+*.vcproj
+*.vcxproj
+*.filters
+*.suo
+*.sln
+bin/*
