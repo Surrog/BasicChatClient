@@ -10,6 +10,7 @@ namespace server
 
 		result.port = val.get("port", result.port).asInt();
 		result.anonymous_client_timeout = val.get("anonymous_client_timeout", result.anonymous_client_timeout).asInt();
+		result.thread_number = val.get("thread_number", result.thread_number).asInt();
 
 		return result;
 	}
@@ -18,5 +19,6 @@ namespace server
 	{
 		val["port"] = config.port;
 		val["anonymous_client_timeout"] = config.anonymous_client_timeout;
+		val["thread_number"] = config.thread_number;
 	}
 }

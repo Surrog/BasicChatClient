@@ -41,6 +41,6 @@ int main(int argc, char** argv)
 	}
 
 	server::tracker serv(config);
-	serv.run();
+	serv.run(config.thread_number);
 	return 0;
 }
