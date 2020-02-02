@@ -23,6 +23,7 @@ namespace server
 			errored
 		};
 
+		std::atomic<status_t> status = status_t::anonymous;
 	private:
 		using tcp = asio::ip::tcp;
 
@@ -30,7 +31,6 @@ namespace server
 		asio::io_context::strand sock_queue;
 
 		std::string username;
-		std::atomic<status_t> status = status_t::anonymous;
 		std::array<char, 1024> buffer;
 		tracker& trac;
 		common::message mess;

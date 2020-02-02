@@ -47,13 +47,17 @@ namespace server
 
 	void tracker::remove_bad_client(const std::shared_ptr<client>& cli)
 	{
-		asio::post(connection_strand, [this, cli]() {
-			auto it = std::find(current_connection.begin(), current_connection.end(), cli);
-			if (it != current_connection.end())
-			{
-				current_connection.erase(it);
-			}
-			});
+		if (cli->status != client::status_t::errored)
+		{
+			cli->status = client::status_t::errored;
+			asio::post(connection_strand, [this, cli]() {
+				auto it = std::find(current_connection.begin(), current_connection.end(), cli);
+				if (it != current_connection.end())
+				{
+					current_connection.erase(it);
+				}
+				});
+		}
 	}
 
 	void tracker::setup_client(asio::ip::tcp::socket s)
