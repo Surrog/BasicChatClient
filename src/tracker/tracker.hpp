@@ -27,8 +27,10 @@ namespace server
 		tracker_config config;
 
 		asio::io_context network_service;
+		asio::signal_set signals;
 		asio::ip::tcp::acceptor acceptor;
 		asio::ip::tcp::socket sock;
+
 
 		std::vector<std::shared_ptr<client>> current_connection;
 		asio::io_context::strand connection_strand;

@@ -9,6 +9,7 @@
 
 int main(int argc, char** argv)
 {
+	std::cout << "server started\n";
 	server::tracker_config config;
 
 	std::filesystem::path config_path = "tracker_config.json";

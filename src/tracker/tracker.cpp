@@ -5,8 +5,12 @@
 namespace server
 {
 	tracker::tracker(const tracker_config& config)
-		: config(config), network_service(), acceptor(network_service), sock(network_service), connection_strand(network_service)
+		: config(config), network_service(), signals(network_service, SIGINT, SIGTERM), acceptor(network_service), sock(network_service), connection_strand(network_service)
 	{
+		signals.async_wait([this](auto, auto) {
+			network_service.stop();
+			});
+
 		asio::ip::tcp::endpoint ep(asio::ip::tcp::v4(), config.port);
 		acceptor.open(ep.protocol());
 		acceptor.set_option(asio::ip::tcp::acceptor::reuse_address(true));
@@ -64,8 +68,9 @@ namespace server
 	{
 		auto new_client = std::make_shared<client>(std::move(s), *this, network_service);
 
-		asio::post(connection_strand, [this, cli = std::move(new_client)](){
-			current_connection.push_back(std::move(cli));
+		new_client->setup_handle();
+		asio::post(connection_strand, [this, new_client](){
+			current_connection.push_back(std::move(new_client));
 		});
 	}
 

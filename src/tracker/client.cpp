@@ -5,9 +5,7 @@ namespace server
 {
 	client::client(tcp::socket sock, tracker& tracker, asio::io_context& context)
 		: sock(std::move(sock)), sock_queue(context), trac(tracker)
-	{
-		setup_handle();
-	}
+	{}
 
 	void client::setup_handle()
 	{
@@ -48,17 +46,17 @@ namespace server
 		});
 	}
 
-	void client::write_buffer(const std::string& buff)
+	void client::write_buffer(std::string buff)
 	{
 		asio::post(sock_queue,
-			[this, self = shared_from_this(), &buff]()
+			[this, self = shared_from_this(), buff]()
 		{
-			asio::async_write(sock, asio::buffer(buff), [this, self, buff](asio::error_code ec, std::size_t size) {
-				if (ec)
-				{
-					trac.remove_bad_client(self);
-				}
-				});
+			asio::error_code ec;
+			asio::write(sock, asio::buffer(buff), ec);
+			if (ec)
+			{
+				trac.remove_bad_client(self);
+			}
 		});
 	}
 }

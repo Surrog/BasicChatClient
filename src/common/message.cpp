@@ -23,6 +23,7 @@ namespace common
 
 		Json::Value val;
 		val["id"] = static_cast<std::int32_t>(mess.id);
+		val["ip"] = mess.ip;
 		val["data"] = mess.data;
 		
 		in = val.toStyledString();
@@ -61,6 +62,7 @@ namespace common
 
 		in.id = static_cast<message::id_t>(received_id);
 		in.data = data;
+		in.ip = result.get("ip", "").asString();
 		return true;
 	}
 }

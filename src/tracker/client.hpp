@@ -13,7 +13,7 @@ namespace server
 {
 	class tracker;
 
-	class client : std::enable_shared_from_this<client>
+	class client : public std::enable_shared_from_this<client>
 	{
 	public:
 		enum class status_t {
@@ -38,10 +38,10 @@ namespace server
 	public:
 		client(tcp::socket sock, tracker& trac, asio::io_context& context);
 
-		void write_buffer(const std::string& buff);
+		void write_buffer(std::string buff);
+		void setup_handle();
 
 	private:
-		void setup_handle();
 		void read_handle();
 		bool handle_message(common::message& message);
 	};
