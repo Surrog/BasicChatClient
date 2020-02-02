@@ -13,4 +13,8 @@ build_script:
 
     cmake --build . --config Release
     
+    cmake --build . --config Debug
 
+    cd src/tests
+
+    python tracker.py
