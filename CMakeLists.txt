@@ -46,16 +46,17 @@ set (TRACKER_SOURCES
 add_executable(tracker ${TRACKER_SOURCES})
 target_link_libraries(tracker Threads::Threads)
 
-if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1) #added to support old travis gcc-8
+if (!WIN32) #added to support old travis gcc-8
 	target_link_libraries(tracker stdc++fs)
 endif()
 
 set (CLIENT_SOURCES
+	${CLIENT_SOURCES_DIR}/main.hpp
 	${CLIENT_SOURCES_DIR}/main.cpp
 	${CLIENT_SOURCES_DIR}/peer.hpp
 	${CLIENT_SOURCES_DIR}/peer.cpp
-	${CLIENT_SOURCES_DIR}/network.hpp
-	${CLIENT_SOURCES_DIR}/network.cpp
+	${CLIENT_SOURCES_DIR}/config.hpp
+	${CLIENT_SOURCES_DIR}/config.cpp
 
 	${COMMON_SOURCES_DIR}/message.hpp
 	${COMMON_SOURCES_DIR}/message.cpp
@@ -65,6 +66,6 @@ set (CLIENT_SOURCES
 add_executable(client ${CLIENT_SOURCES})
 target_link_libraries(client Threads::Threads)
 
-if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1) #added to support old travis gcc-8
-	target_link_libraries(client stdc++fs)
+if (!WIN32) #added to support old travis gcc-8
+	target_link_libraries(tracker stdc++fs)
 endif()
