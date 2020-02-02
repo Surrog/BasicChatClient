@@ -11,18 +11,41 @@ else (WIN32)
 add_definitions(-std=c++17)
 endif(WIN32)
 
-include_directories("${PROJECT_SOURCE_DIR}")
-include_directories("${PROJECT_SOURCE_DIR}/asio/include")
-include_directories("${PROJECT_SOURCE_DIR}/jsoncpp/include")
+add_definitions(-DASIO_NO_DEPRECATED)
 
 set(SOURCES_DIR "${PROJECT_SOURCE_DIR}/src")
+set(TRACKER_SOURCES_DIR "${SOURCES_DIR}/tracker")
+set(COMMON_SOURCES_DIR "${SOURCES_DIR}/common")
+set(CLIENT_SOURCES_DIR "${SOURCES_DIR}/client")
+set(JSONCPP_DIR "${PROJECT_SOURCE_DIR}/jsoncpp/dist")
+
+include_directories("${PROJECT_SOURCE_DIR}")
+include_directories("${COMMON_SOURCES_DIR}")
+include_directories("${PROJECT_SOURCE_DIR}/asio/include")
+include_directories("${JSONCPP_DIR}")
 
 find_package( Threads REQUIRED )
 
 # sources in the resolver_server directory
 set (TRACKER_SOURCES 
-	${SOURCES_DIR}/main.cpp
+	${TRACKER_SOURCES_DIR}/main.cpp
+	${TRACKER_SOURCES_DIR}/tracker.cpp
+	${TRACKER_SOURCES_DIR}/tracker.hpp
+	${TRACKER_SOURCES_DIR}/tracker_config.cpp
+	${TRACKER_SOURCES_DIR}/tracker_config.hpp
+	${TRACKER_SOURCES_DIR}/client.cpp
+	${TRACKER_SOURCES_DIR}/client.hpp
+
+	${COMMON_SOURCES_DIR}/message.hpp
+	${COMMON_SOURCES_DIR}/message.cpp
+
+	${JSONCPP_DIR}/jsoncpp.cpp
 	)
+
 
 add_executable(tracker ${TRACKER_SOURCES})
 target_link_libraries( tracker Threads::Threads)
+
+if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1) #added to support old travis gcc-8
+	target_link_libraries(tracker stdc++fs)
+endif()
