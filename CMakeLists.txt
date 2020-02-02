@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 3.2)
 
 project (BasicChatClient)
 
+set (CMAKE_CXX_STANDARD 17)
+
 if (WIN32)
 add_definitions(/std:c++latest)
 add_definitions(/permissive-)
@@ -46,7 +48,7 @@ set (TRACKER_SOURCES
 add_executable(tracker ${TRACKER_SOURCES})
 target_link_libraries(tracker Threads::Threads)
 
-if (!WIN32) #added to support old travis gcc-8
+if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1) #added to support old travis gcc-8
 	target_link_libraries(tracker stdc++fs)
 endif()
 
@@ -66,6 +68,6 @@ set (CLIENT_SOURCES
 add_executable(client ${CLIENT_SOURCES})
 target_link_libraries(client Threads::Threads)
 
-if (!WIN32) #added to support old travis gcc-8
-	target_link_libraries(tracker stdc++fs)
+if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1) #added to support old travis gcc-8
+	target_link_libraries(client stdc++fs)
 endif()
