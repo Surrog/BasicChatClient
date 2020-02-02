@@ -23,6 +23,7 @@ namespace server
 		status = status_t::logged;
 		auto alert_new_client = message;
 		alert_new_client.id = common::message::id_t::NEW_CLIENT;
+		alert_new_client.ip = sock.local_endpoint().address().to_string();
 		trac.broadcast_message(message);
 		if (status != status_t::errored)
 		{

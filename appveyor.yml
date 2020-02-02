@@ -15,6 +15,6 @@ build_script:
     
     cmake --build . --config Debug
 
-    cd src/tests
+    cd C:\project\BasicChatClient\src\tests
 
     python tracker.py

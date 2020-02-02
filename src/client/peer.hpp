@@ -10,7 +10,7 @@ struct peer
 	std::string id;
 	std::string ip;
 
-	std::vector<std::string> message;
+	std::vector<std::string> messages;
 	asio::ip::tcp::socket sock;
 };
 

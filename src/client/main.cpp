@@ -8,6 +8,7 @@
 
 int main(int argc, char** argv)
 {
+	std::cout << R"_(usage: `user:"message"`\n)_";
 	common::message m;
 	m.id = common::message::id_t::LOG_ME;
 	m.data = "toto";
