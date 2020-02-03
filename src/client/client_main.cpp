@@ -21,14 +21,11 @@ namespace client
 
 	void main::start_accept()
 	{
-		incoming_connection.async_accept(new_connection, [this](asio::error_code ec) {
-			auto new_peer = std::make_shared<peer>(*this, std::move(new_connection));
-
+		auto new_peer = std::make_shared<peer>(*this);
+		incoming_connection.async_accept(new_peer->sock, [this, new_peer](asio::error_code ec) {
 			new_peer->setup_read();
-
-			common::message login = config::log_me_from_config(conf);
-
-			new_peer->write_buffer(login);
+			new_peer->write_buffer(config::log_me_from_config(conf));
+			start_accept();
 			});
 	}
 
@@ -113,17 +110,17 @@ namespace client
 		asio::post(peer_strand, [this, cli, is_known] {
 			if (is_known)
 			{
-				known_peers.erase(cli->username());
+				known_peers.erase(cli->user);
 			}
-			connected_peers[cli->username()] = cli;
+			connected_peers[cli->user] = cli;
 			});
 	}
 
 	void main::cleanup_failed_client(const std::shared_ptr<peer>& cli)
 	{
 		asio::post(peer_strand, [this, cli] {
-			known_peers.erase(cli->username());
-			connected_peers.erase(cli->username());
+			known_peers.erase(cli->user);
+			connected_peers.erase(cli->user);
 			});
 	}
 

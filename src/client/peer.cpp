@@ -10,8 +10,8 @@ namespace client
 		:track(m), sock(m.service), write_strand(m.service), ip(ip), port(port), read_buff(), user(id)
 	{}
 
-	peer::peer(main& m, asio::ip::tcp::socket sock)
-		: track(m), sock(std::move(sock)), write_strand(m.service), read_buff()
+	peer::peer(main& m)
+		: track(m), sock(m.service), write_strand(m.service), read_buff()
 	{}
 
 	void peer::write_buffer(const std::string& buffer)
@@ -81,6 +81,7 @@ namespace client
 		asio::error_code ec;
 		auto eps = resolver.resolve(ip, std::to_string(port), ec);
 
+		std::cout << "try connect to " << user << ':' << port << std::endl;
 		asio::async_connect(sock, eps,
 			[this, eps, login, mess, is_known, self = shared_from_this()](asio::error_code ec, asio::ip::tcp::endpoint ep) {
 			if (ec)
