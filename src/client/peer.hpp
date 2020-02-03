@@ -12,18 +12,18 @@ namespace client
 	{
 	public:
 		peer(main& service, std::string ip, unsigned short port, std::string id = "");
-		peer(main& service, asio::ip::tcp::socket sock);
+		peer(main& service);
 		void write_buffer(const std::string& buffer);
 		void write_buffer(const common::message& mess);
 		void setup_read();
 		bool handle_message(const common::message& mess);
 		void connect_and_send_message(const common::message& login, const common::message& mess, bool is_known);
 
-		inline const std::string& username() { return user; }
+		std::string user;
+		asio::ip::tcp::socket sock;
 
 	private:
 		//logins
-		std::string user;
 		std::string ip;
 		unsigned short port;
 
@@ -31,7 +31,6 @@ namespace client
 		main& track;
 
 		//network
-		asio::ip::tcp::socket sock;
 		std::array<char, 1024> read_buff;
 		common::message read_mess;
 		asio::io_context::strand write_strand;

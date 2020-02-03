@@ -11,7 +11,7 @@ namespace client
 		, server_sock(service), new_connection(service)
 		, incoming_connection(service), conf(conf)
 		, connected_peers(), known_peers()
-		, peer_strand(service)
+		, peer_strand(service), retry_timer(service)
 
 	{
 		signals.async_wait([this](auto, auto) {
@@ -21,14 +21,11 @@ namespace client
 
 	void main::start_accept()
 	{
-		incoming_connection.async_accept(new_connection, [this](asio::error_code ec) {
-			auto new_peer = std::make_shared<peer>(*this, std::move(new_connection));
-
+		auto new_peer = std::make_shared<peer>(*this);
+		incoming_connection.async_accept(new_peer->sock, [this, new_peer](asio::error_code ec) {
 			new_peer->setup_read();
-
-			common::message login = config::log_me_from_config(conf);
-
-			new_peer->write_buffer(login);
+			new_peer->write_buffer(config::log_me_from_config(conf));
+			start_accept();
 			});
 	}
 
@@ -40,7 +37,7 @@ namespace client
 		{
 			if (ec || !common::message::deserialize(server_buff.data(), server_buff.data() + size, server_mess) || !handle_server_message(server_mess))
 			{
-				std::cout << "error on server " << ec << " message size: " << size << std::endl;
+				std::cerr << "error on server " << ec << " message size: " << size << std::endl;
 				server_sock.close();
 				return;
 			}
@@ -113,17 +110,17 @@ namespace client
 		asio::post(peer_strand, [this, cli, is_known] {
 			if (is_known)
 			{
-				known_peers.erase(cli->username());
+				known_peers.erase(cli->user);
 			}
-			connected_peers[cli->username()] = cli;
+			connected_peers[cli->user] = cli;
 			});
 	}
 
 	void main::cleanup_failed_client(const std::shared_ptr<peer>& cli)
 	{
 		asio::post(peer_strand, [this, cli] {
-			known_peers.erase(cli->username());
-			connected_peers.erase(cli->username());
+			known_peers.erase(cli->user);
+			connected_peers.erase(cli->user);
 			});
 	}
 
@@ -142,7 +139,7 @@ namespace client
 						std::cout << p.first << std::endl;
 					}
 
-					std::cout << "not connected peers : " << known_peers.size() << '\n' << std::endl;
+					std::cout << "not connected peers : " << known_peers.size() << '\n';
 					for (const auto& p : known_peers)
 					{
 						std::cout << p.first << std::endl;
@@ -154,17 +151,48 @@ namespace client
 				auto pos = buffer.find('|');
 				if (pos != std::string::npos)
 				{
-					asio::post(peer_strand, [this, username = buffer.substr(0, pos), message = buffer.substr(pos + 1)]()
+					asio::post(peer_strand, [this, username = buffer.substr(0, pos), message = buffer.substr(pos + 1)] () mutable
 					{
 						if (message.size() > 512)
 						{
 							std::cout << "Warning: message limit 512 character !\n";
+							message.resize(512);
 						}
 						peer_lookout_and_send_message(username, message);
 					});
 				}
 			}
 		}
+	}
+
+	void main::connect_to_server()
+	{
+		asio::ip::tcp::resolver resolver(service);
+		asio::error_code ec;
+		auto eps = resolver.resolve(conf.server_ip, conf.server_port, ec);
+
+		asio::async_connect(server_sock, eps,
+			[this, eps](asio::error_code ec, asio::ip::tcp::endpoint ep) {
+				if (ec)
+				{
+					//std::cout
+					//	<< "Failed to connect to server: " << ep.address().to_string() << ':' << ep.port() << '\n'
+					//	<< "You may want to check if the configuration file matches\n"
+					//	<< "retry in 30s" << std::endl;
+					retry_timer.expires_after(std::chrono::seconds(conf.second_before_server_retry));
+					retry_timer.async_wait([this](asio::error_code) { connect_to_server(); });
+					return;
+				}
+
+				common::message login = config::log_me_from_config(conf);
+				std::string buffer;
+				common::message::serialize(login, buffer);
+				asio::write(server_sock, asio::buffer(buffer), ec);
+				if (!ec)
+				{
+					setup_server_read();
+				}
+			});
 	}
 
 	void main::run()
@@ -191,32 +219,7 @@ namespace client
 
 		std::cout << "start listening on port: " << conf.listening_port << '\n';
 		start_accept();
-
-		asio::ip::tcp::resolver resolver(service);
-		asio::error_code ec;
-		auto eps = resolver.resolve(conf.server_ip, conf.server_port, ec);
-
-		asio::async_connect(server_sock, eps,
-			[this, eps](asio::error_code ec, asio::ip::tcp::endpoint ep) {
-				if (ec)
-				{
-					std::cout 
-						<< "Failed to connect to server: " << ep.address().to_string() << ':' << ep.port() << '\n'
-						<< "You may want to check if the configuration file matches\n"
-						<< "retry in 30s" << std::endl;
-					return;
-				}
-
-				common::message login = config::log_me_from_config(conf);
-				std::string buffer;
-				common::message::serialize(login, buffer);
-				asio::write(server_sock, asio::buffer(buffer), ec);
-				if (!ec)
-				{
-					setup_server_read();
-				}
-			});
-
+		connect_to_server();
 		handle_commandline();
 
 		for (auto& t : thds)

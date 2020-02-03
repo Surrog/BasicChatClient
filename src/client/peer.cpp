@@ -10,13 +10,21 @@ namespace client
 		:track(m), sock(m.service), write_strand(m.service), ip(ip), port(port), read_buff(), user(id)
 	{}
 
-	peer::peer(main& m, asio::ip::tcp::socket sock)
-		: track(m), sock(std::move(sock)), write_strand(m.service), read_buff()
+	peer::peer(main& m)
+		: track(m), sock(m.service), write_strand(m.service), read_buff()
 	{}
 
 	void peer::write_buffer(const std::string& buffer)
 	{
-		asio::post(write_strand, [this, buf = buffer]() { asio::write(sock, asio::buffer(buf)); });
+		asio::post(write_strand, [this, buf = buffer, self = shared_from_this()]() { 
+			asio::error_code ec;
+			asio::write(sock, asio::buffer(buf), ec); 
+			if (ec)
+			{
+				std::cout << "error writing to peer " << user << ':' << port << std::endl;
+				track.cleanup_failed_client(self);
+			}
+		});
 	}
 
 	void peer::write_buffer(const common::message& mess)
@@ -35,7 +43,7 @@ namespace client
 		{
 			if (ec || !common::message::deserialize(read_buff.data(), read_buff.data() + size, read_mess) || !handle_message(read_mess))
 			{
-				std::cout << "error on peer " << user << ':' << port << std::endl;
+				std::cout << "error reading from peer " << user << ':' << port << std::endl;
 				track.cleanup_failed_client(self);
 				sock.close();
 				return;
@@ -73,6 +81,7 @@ namespace client
 		asio::error_code ec;
 		auto eps = resolver.resolve(ip, std::to_string(port), ec);
 
+		std::cout << "try connect to " << user << ':' << port << std::endl;
 		asio::async_connect(sock, eps,
 			[this, eps, login, mess, is_known, self = shared_from_this()](asio::error_code ec, asio::ip::tcp::endpoint ep) {
 			if (ec)

@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	std::cout << "usage:\n\t" << R"_(`<user>|<message>`)_" << "\n\t" << R"_(`users` will get the list of currently logged users)_" << '\n';
+	std::cout << "usage:\n\t" << R"_(`<user>|<message>` will sent the <message> to <user>)_" << "\n\t" << R"_(`users` will get the list of currently logged users)_" << '\n';
 	std::cout << '\t' << R"_(example: `toto|hello world !`)_" << "\n\t" << R"_(example: `localhost:1337|comment est votre blanquette ?`)_" << '\n';
 	std::cout << "Message limit: 512 characters\n";
 	std::cout << "\nhello user '" << config.username << "'\n";

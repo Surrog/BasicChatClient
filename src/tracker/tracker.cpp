@@ -97,9 +97,12 @@ namespace server
 
 			for (const auto& c : current_connection)
 			{
-				buf_mess = c->client_info();
-				common::message::serialize(buf_mess, buffer);
-				cli->write_buffer(buffer);
+				if (c != cli)
+				{
+					buf_mess = c->client_info();
+					common::message::serialize(buf_mess, buffer);
+					cli->write_buffer(buffer);
+				}
 			}
 		});
 	}

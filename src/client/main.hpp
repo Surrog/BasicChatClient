@@ -16,6 +16,7 @@ namespace client
 		void peer_lookout_and_send_message(const std::string username, const std::string& message);
 		void register_connected_client(const std::shared_ptr<peer>& cli, bool was_known);
 		void cleanup_failed_client(const std::shared_ptr<peer>& cli);
+		void connect_to_server();
 		void run();
 
 		asio::io_context service;
@@ -37,6 +38,7 @@ namespace client
 		asio::ip::tcp::socket server_sock;
 		std::array<char, 1024> server_buff;
 		common::message server_mess;
+		asio::steady_timer retry_timer;
 
 		//private impl
 		void handle_commandline();
