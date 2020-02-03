@@ -17,10 +17,10 @@ address = "localhost"
 port = 8752
 
 def convert(val):
-	if sys.version < 3:
+	if sys.version < "3":
 		return str(val)
 	else:
-		return bytes(val, "utf-8")
+		return str(val).encode("utf-8")
 
 
 class TrackerTest(unittest.TestCase):

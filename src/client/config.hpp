@@ -17,9 +17,11 @@ namespace client
 		int			thread_number = 4;
 		std::string server_ip = "localhost";
 		std::string server_port = "8752";
+		std::string listening_port;
 
 		static config config_from_json(const Json::Value& val);
 		static void config_to_json(const config& config, Json::Value& val);
+		static std::string randomize_port();
 	};
 }
 

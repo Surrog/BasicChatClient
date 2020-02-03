@@ -19,6 +19,7 @@ namespace client
 	private:
 		std::string id;
 		std::string ip;
+		std::string port;
 
 		std::string buffer;
 		asio::ip::tcp::socket sock;
