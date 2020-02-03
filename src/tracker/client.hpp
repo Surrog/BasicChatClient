@@ -31,6 +31,7 @@ namespace server
 		asio::io_context::strand sock_queue;
 
 		std::string username;
+		std::string listening_port;
 		std::array<char, 1024> buffer;
 		tracker& trac;
 		common::message mess;

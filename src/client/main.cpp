@@ -9,73 +9,9 @@
 #include "peer.hpp"
 #include "message.hpp"
 
-namespace client
-{
-	main::main(config conf)
-		: service(), signals(service, SIGINT, SIGTERM), peers(), peers_strand(service), server_sock(service), conf(conf)
-	{
-		signals.async_wait([this](auto, auto) {
-			service.stop();
-			});
-	}
-
-	void main::run()
-	{
-		std::vector<std::thread> thds;
-
-		for (std::size_t i = 0; i < conf.thread_number - 1; i++)
-		{
-			thds.emplace_back([this]() {
-				service.run();
-				});
-		}
-		thds.emplace_back([this]() {
-			service.run();
-			});
-
-		std::string buffer;
-		while (!service.stopped())
-		{
-			std::cin >> buffer;
-			if (buffer == "users")
-			{
-				asio::post(peers_strand, [this]() {
-					for (const auto& p : peers)
-					{
-						std::cout << p.first << std::endl;
-					}
-				});
-			}
-			else
-			{
-				auto pos = buffer.find(':');
-				if (pos != std::string::npos)
-				{
-					asio::post(peers_strand, [this, username = buffer.substr(0, pos), message = buffer.substr(pos + 1)]()
-					{
-						auto it = peers.find(username);
-						if (it != peers.end())
-						{
-							common::message mess;
-							mess.id = common::message::id_t::MESSAGE;
-							mess.data = message;
-							it->second->write_buffer(mess);
-						}
-					});
-				}
-			}
-		}
-
-		for (auto& t : thds)
-		{
-			t.join();
-		}
-	}
-}
-
 int main(int argc, char** argv)
 {
-	std::filesystem::path config_path = "tracker_config.json";
+	std::filesystem::path config_path = "client_config.json";
 	client::config config;
 
 	if (std::filesystem::exists(config_path))
@@ -109,9 +45,14 @@ int main(int argc, char** argv)
 		}
 
 		config.username = val;
+		std::ofstream stream(config_path);
+		Json::Value json_config;
+		client::config::config_to_json(config, json_config);
+		stream << json_config;
 	}
 
-	std::cout << R"_(usage:\t`<user>:<message>`\n\t`users` will get the list of currently logged users\n)_";
+	std::cout << "usage:\n\t" << R"_(`<user>|<message>`)_" << "\n\t" << R"_(`users` will get the list of currently logged users)_" << '\n';
+	std::cout << '\t' << R"_(example: `toto|hello world !`)_" << "\n\t" << R"_(example: `localhost:1337|comment est votre blanquette ?)_" << '\n';
 	client::main m(config);
 
 	m.run();

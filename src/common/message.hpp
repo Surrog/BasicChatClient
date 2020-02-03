@@ -19,6 +19,7 @@ namespace common
 
 		id_t id;
 		std::string ip;
+		std::string port;
 		std::string data;
 
 		static constexpr std::size_t log_me_max_data = 256;

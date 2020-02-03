@@ -1,6 +1,7 @@
 
 #include "tracker.hpp"
 #include <thread>
+#include <iostream>
 
 namespace server
 {
@@ -16,6 +17,7 @@ namespace server
 		acceptor.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 		acceptor.bind(ep);
 		acceptor.listen();
+		std::cout << "server listening on port: " << config.port << '\n';
 
 		start_accept();
 	}
@@ -69,9 +71,9 @@ namespace server
 		auto new_client = std::make_shared<client>(std::move(s), *this, network_service);
 
 		new_client->setup_handle();
-		asio::post(connection_strand, [this, new_client](){
+		asio::post(connection_strand, [this, new_client]() {
 			current_connection.push_back(std::move(new_client));
-		});
+			});
 	}
 
 	void tracker::broadcast_message(const common::message& mess)
@@ -79,9 +81,18 @@ namespace server
 		std::string buffer;
 		common::message::serialize(mess, buffer);
 
-		for (auto& cli : current_connection)
-		{
-			cli->write_buffer(buffer);
-		}
+		asio::post(connection_strand, [this, buffer]() {
+			for (auto& cli : current_connection)
+			{
+				cli->write_buffer(buffer);
+			}
+			});
+	}
+
+	void tracker::sent_all_connection_info_to(const std::shared_ptr<client>& cli)
+	{
+		//asio::post(connection_strand, [this, cli]() {
+		//	cli->write
+		//	});
 	}
 }

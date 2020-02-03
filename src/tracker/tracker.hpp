@@ -22,6 +22,7 @@ namespace server
 		void run(std::size_t thread_num = 1);
 		void remove_bad_client(const std::shared_ptr<client>& cli);
 		void broadcast_message(const common::message& mess);
+		void sent_all_connection_info_to(const std::shared_ptr<client>& cli);
 
 	private:
 		tracker_config config;

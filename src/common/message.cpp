@@ -22,8 +22,15 @@ namespace common
 
 		Json::Value val;
 		val["id"] = static_cast<std::int32_t>(mess.id);
-		val["ip"] = mess.ip;
-		val["data"] = mess.data;
+		if (mess.ip.size())
+		{
+			val["ip"] = mess.ip;
+		}
+		val["port"] = mess.port;
+		if (mess.data.size())
+		{
+			val["data"] = mess.data;
+		}
 		
 		in = val.toStyledString();
 		return true;

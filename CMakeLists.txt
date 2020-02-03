@@ -55,10 +55,13 @@ endif()
 set (CLIENT_SOURCES
 	${CLIENT_SOURCES_DIR}/main.hpp
 	${CLIENT_SOURCES_DIR}/main.cpp
-	${CLIENT_SOURCES_DIR}/peer.hpp
-	${CLIENT_SOURCES_DIR}/peer.cpp
+	${CLIENT_SOURCES_DIR}/client_main.cpp
+
 	${CLIENT_SOURCES_DIR}/config.hpp
 	${CLIENT_SOURCES_DIR}/config.cpp
+
+	${CLIENT_SOURCES_DIR}/peer.hpp
+	${CLIENT_SOURCES_DIR}/peer.cpp
 
 	${COMMON_SOURCES_DIR}/message.hpp
 	${COMMON_SOURCES_DIR}/message.cpp

@@ -24,7 +24,8 @@ namespace server
 		common::message alert_new_client = message;
 		alert_new_client.id = common::message::id_t::NEW_CLIENT;
 		alert_new_client.ip = sock.local_endpoint().address().to_string();
-		trac.broadcast_message(message);
+		trac.broadcast_message(alert_new_client);
+
 		if (status != status_t::errored)
 		{
 			status = status_t::broadcasted;
