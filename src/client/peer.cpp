@@ -16,7 +16,15 @@ namespace client
 
 	void peer::write_buffer(const std::string& buffer)
 	{
-		asio::post(write_strand, [this, buf = buffer]() { asio::write(sock, asio::buffer(buf)); });
+		asio::post(write_strand, [this, buf = buffer, self = shared_from_this()]() { 
+			asio::error_code ec;
+			asio::write(sock, asio::buffer(buf), ec); 
+			if (ec)
+			{
+				std::cout << "error writing to peer " << user << ':' << port << std::endl;
+				track.cleanup_failed_client(self);
+			}
+		});
 	}
 
 	void peer::write_buffer(const common::message& mess)
@@ -35,7 +43,7 @@ namespace client
 		{
 			if (ec || !common::message::deserialize(read_buff.data(), read_buff.data() + size, read_mess) || !handle_message(read_mess))
 			{
-				std::cout << "error on peer " << user << ':' << port << std::endl;
+				std::cout << "error reading from peer " << user << ':' << port << std::endl;
 				track.cleanup_failed_client(self);
 				sock.close();
 				return;

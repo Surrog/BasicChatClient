@@ -15,6 +15,7 @@ namespace client
 		result.server_ip = val.get("server_ip", result.server_ip).asString();
 		result.server_port = val.get("server_port", result.server_port).asString();
 		result.listening_port = val.get("listening_port", result.listening_port).asInt();
+		result.second_before_server_retry = val.get("second_before_server_retry", result.second_before_server_retry).asInt();
 
 		return result;
 	}
@@ -26,6 +27,7 @@ namespace client
 		val["server_ip"] = config.server_ip;
 		val["server_port"] = config.server_port;
 		val["listening_port"] = config.listening_port;
+		val["second_before_server_retry"] = config.second_before_server_retry;
 	}
 
 	int config::randomize_port()
