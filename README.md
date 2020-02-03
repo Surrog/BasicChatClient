@@ -43,7 +43,7 @@ First launche will trigger the creator of a configuration file, that you can mod
 `
 
 Current command line available :
--	`<user>|<message>`
+-	`<user>|<message>` will send a message to <user>, should it be an logged user or an ip 
 -	`users` will get the list of currently logged users
 
 example: `toto|hello world !`
