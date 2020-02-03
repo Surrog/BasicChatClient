@@ -64,8 +64,6 @@ namespace server
 
 	void client::write_buffer(std::string buff)
 	{
-		std::cout << "username: " << buff << '\n';
-
 		asio::post(sock_queue,
 			[this, self = shared_from_this(), buff]()
 		{
