@@ -35,7 +35,7 @@ namespace client
 
 		//tracker network
 		asio::ip::tcp::socket server_sock;
-		std::string server_buff;
+		std::array<char, 1024> server_buff;
 		common::message server_mess;
 
 		//private impl

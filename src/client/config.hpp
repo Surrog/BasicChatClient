@@ -2,6 +2,7 @@
 #define CLIENT_CONFIG_HPP
 
 #include <string>
+#include "message.hpp"
 
 namespace Json
 {
@@ -27,6 +28,7 @@ namespace client
 		static config config_from_json(const Json::Value& val);
 		static void config_to_json(const config& config, Json::Value& val);
 		static int randomize_port();
+		static common::message log_me_from_config(const config& config);
 	};
 }
 

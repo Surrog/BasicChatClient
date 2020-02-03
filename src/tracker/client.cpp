@@ -1,5 +1,6 @@
 #include "client.hpp"
 #include "tracker.hpp"
+#include <iostream>
 
 namespace server
 {
@@ -34,6 +35,7 @@ namespace server
 		username = message.data;
 		listening_port = message.port;
 		status = status_t::logged;
+		std::cout << "logging " << username << std::endl;
 		
 		trac.broadcast_message(client_info());
 		trac.sent_all_connection_info_to(shared_from_this());
@@ -62,6 +64,8 @@ namespace server
 
 	void client::write_buffer(std::string buff)
 	{
+		std::cout << "username: " << buff << '\n';
+
 		asio::post(sock_queue,
 			[this, self = shared_from_this(), buff]()
 		{

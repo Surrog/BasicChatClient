@@ -9,6 +9,9 @@ Simple local chat client for toying purpose
 
 Should work on any major OS
 
+[![Build Status](https://travis-ci.org/Surrog/BasicChatClient.svg?branch=master)](https://travis-ci.org/Surrog/BasicChatClient)
+[![Build status](https://ci.appveyor.com/api/projects/status/1bn0uwo55pwcwiqw?svg=true)](https://ci.appveyor.com/project/Surrog/basicchatclient)
+
 # Usage
 
 ## Tracker

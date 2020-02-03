@@ -92,8 +92,6 @@ namespace server
 	void tracker::sent_all_connection_info_to(const std::shared_ptr<client>& cli)
 	{
 		asio::post(connection_strand, [this, cli]() {
-			common::message alert_new_client;
-			alert_new_client.id = common::message::id_t::NEW_CLIENT;
 			std::string buffer;
 			common::message buf_mess;
 

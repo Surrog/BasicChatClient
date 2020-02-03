@@ -35,4 +35,14 @@ namespace client
 		int val = distribution(generator);
 		return val;
 	}
+
+	common::message config::log_me_from_config(const config& config)
+	{
+		common::message result;
+		result.id = common::message::id_t::LOG_ME;
+		result.data = config.username;
+		result.port = std::to_string(config.listening_port);
+	
+		return result;
+	}
 }

@@ -26,10 +26,7 @@ namespace client
 
 			new_peer->setup_read();
 
-			common::message login;
-			login.id = common::message::id_t::LOG_ME;
-			login.data = conf.username;
-			login.port = conf.listening_port;
+			common::message login = config::log_me_from_config(conf);
 
 			new_peer->write_buffer(login);
 			});
@@ -43,7 +40,7 @@ namespace client
 		{
 			if (ec || !common::message::deserialize(server_buff.data(), server_buff.data() + size, server_mess) || !handle_server_message(server_mess))
 			{
-				std::cout << "error on server message: " << server_buff << std::endl;
+				std::cout << "error on server " << ec << " message size: " << size << std::endl;
 				server_sock.close();
 				return;
 			}
@@ -89,9 +86,7 @@ namespace client
 			return;
 		}
 
-		common::message login;
-		login.id = common::message::id_t::LOG_ME;
-		login.data = conf.username;
+		common::message login = config::log_me_from_config(conf);
 
 		it = known_peers.find(username);
 		if (it != known_peers.end())
@@ -212,11 +207,9 @@ namespace client
 					return;
 				}
 
-				common::message login;
-				login.id = common::message::id_t::LOG_ME;
-				login.data = conf.username;
-				login.port = conf.listening_port;
+				common::message login = config::log_me_from_config(conf);
 				std::string buffer;
+				common::message::serialize(login, buffer);
 				asio::write(server_sock, asio::buffer(buffer), ec);
 				if (!ec)
 				{
