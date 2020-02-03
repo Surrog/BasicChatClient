@@ -6,15 +6,14 @@ import socket
 import json
 
 
-bin_path = os.path.join(os.getcwd(), "..", "..", "bin", "Debug")
-tracker = os.path.join(bin_path, "tracker")
+bin_path = os.path.join(os.getcwd(), "..", "..", "bin")
+if os.name == "nt":
+	tracker = os.path.join(bin_path, "Debug", "tracker.exe")
+else:
+	tracker = os.path.join(bin_path, "tracker")
+
 address = "localhost"
 port = 8752
-
-
-
-if os.name == "nt":
-	tracker += ".exe"
 
 class TrackerTest(unittest.TestCase):
 	@classmethod

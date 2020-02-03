@@ -6,11 +6,13 @@
 #include "config.hpp"
 #include "json/json.h"
 #include "main.hpp"
+#include "peer.hpp"
+#include "message.hpp"
 
 namespace client
 {
 	main::main(config conf)
-		: service(), signals(service, SIGINT, SIGTERM), peers(), server_sock(service), conf(conf)
+		: service(), signals(service, SIGINT, SIGTERM), peers(), peers_strand(service), server_sock(service), conf(conf)
 	{
 		signals.async_wait([this](auto, auto) {
 			service.stop();
@@ -31,11 +33,43 @@ namespace client
 			service.run();
 			});
 
+		std::string buffer;
+		while (!service.stopped())
+		{
+			std::cin >> buffer;
+			if (buffer == "users")
+			{
+				asio::post(peers_strand, [this]() {
+					for (const auto& p : peers)
+					{
+						std::cout << p.first << std::endl;
+					}
+				});
+			}
+			else
+			{
+				auto pos = buffer.find(':');
+				if (pos != std::string::npos)
+				{
+					asio::post(peers_strand, [this, username = buffer.substr(0, pos), message = buffer.substr(pos + 1)]()
+					{
+						auto it = peers.find(username);
+						if (it != peers.end())
+						{
+							common::message mess;
+							mess.id = common::message::id_t::MESSAGE;
+							mess.data = message;
+							it->second->write_buffer(mess);
+						}
+					});
+				}
+			}
+		}
+
 		for (auto& t : thds)
 		{
 			t.join();
 		}
-
 	}
 }
 
@@ -77,6 +111,7 @@ int main(int argc, char** argv)
 		config.username = val;
 	}
 
+	std::cout << R"_(usage:\t`<user>:<message>`\n\t`users` will get the list of currently logged users\n)_";
 	client::main m(config);
 
 	m.run();
