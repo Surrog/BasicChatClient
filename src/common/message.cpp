@@ -69,6 +69,7 @@ namespace common
 		in.id = static_cast<message::id_t>(received_id);
 		in.data = data;
 		in.ip = result.get("ip", "").asString();
+		in.port = result.get("port", "").asString();
 		return true;
 	}
 }

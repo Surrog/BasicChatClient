@@ -41,6 +41,7 @@ namespace server
 
 		void write_buffer(std::string buff);
 		void setup_handle();
+		common::message client_info() const;
 
 	private:
 		void read_handle();

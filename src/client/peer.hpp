@@ -11,7 +11,7 @@ namespace client
 	class peer : public std::enable_shared_from_this<peer>
 	{
 	public:
-		peer(main& service, std::string ip, unsigned short port);
+		peer(main& service, std::string ip, unsigned short port, std::string id = "");
 		peer(main& service, asio::ip::tcp::socket sock);
 		void write_buffer(const std::string& buffer);
 		void write_buffer(const common::message& mess);
@@ -19,11 +19,11 @@ namespace client
 		bool handle_message(const common::message& mess);
 		void connect_and_send_message(const common::message& login, const common::message& mess, bool is_known);
 
-		inline const std::string& username() { return id; }
+		inline const std::string& username() { return user; }
 
 	private:
 		//logins
-		std::string id;
+		std::string user;
 		std::string ip;
 		unsigned short port;
 

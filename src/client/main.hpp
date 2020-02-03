@@ -42,7 +42,7 @@ namespace client
 		void handle_commandline();
 		void start_accept();
 		void setup_server_read();
-		bool handle_message(const common::message& mess);
+		bool handle_server_message(const common::message& mess);
 	};
 	
 }

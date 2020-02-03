@@ -12,6 +12,18 @@ namespace server
 		read_handle();
 	}
 
+	common::message client::client_info() const
+	{
+		common::message result;
+
+		result.id = common::message::id_t::NEW_CLIENT;
+		result.ip = sock.local_endpoint().address().to_string();
+		result.data = username;
+		result.port = listening_port;
+
+		return result;
+	}
+
 	bool client::handle_message(common::message& message)
 	{
 		if (message.id != common::message::id_t::LOG_ME)
@@ -20,11 +32,11 @@ namespace server
 		}
 
 		username = message.data;
+		listening_port = message.port;
 		status = status_t::logged;
-		common::message alert_new_client = message;
-		alert_new_client.id = common::message::id_t::NEW_CLIENT;
-		alert_new_client.ip = sock.local_endpoint().address().to_string();
-		trac.broadcast_message(alert_new_client);
+		
+		trac.broadcast_message(client_info());
+		trac.sent_all_connection_info_to(shared_from_this());
 
 		if (status != status_t::errored)
 		{

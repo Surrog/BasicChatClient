@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <string>
 #include "main.hpp"
 #include "asio.hpp"
 
@@ -40,7 +41,7 @@ namespace client
 			asio::buffer(server_buff)
 			, [this](asio::error_code ec, std::size_t size)
 		{
-			if (ec || !common::message::deserialize(server_buff.data(), server_buff.data() + size, server_mess) || !handle_message(server_mess))
+			if (ec || !common::message::deserialize(server_buff.data(), server_buff.data() + size, server_mess) || !handle_server_message(server_mess))
 			{
 				std::cout << "error on server message: " << server_buff << std::endl;
 				server_sock.close();
@@ -50,9 +51,29 @@ namespace client
 		});
 	}
 
-	bool main::handle_message(const common::message& mess)
+	bool main::handle_server_message(const common::message& mess)
 	{
-		return false;
+		if (mess.id != common::message::id_t::NEW_CLIENT)
+		{
+			return false;
+		}
+
+		if (mess.data == conf.username)
+		{
+			return true;
+		}
+
+		asio::post(peer_strand, [mess, this]()
+			{
+				auto it = connected_peers.find(mess.data);
+				if (it == connected_peers.end())
+				{
+					known_peers[mess.data] = std::make_shared<peer>(*this, mess.ip
+						, static_cast<unsigned short>(std::stoi(mess.port)), mess.data);
+				}
+			});
+
+		return true;
 	}
 
 	void main::peer_lookout_and_send_message(const std::string username, const std::string& message)

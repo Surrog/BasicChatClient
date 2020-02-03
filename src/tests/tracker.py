@@ -57,24 +57,15 @@ class TrackerTest(unittest.TestCase):
 	def test_authent(self):
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.assertEqual(s.connect_ex((address, port)), 0)
-		s.send(convert(json.dumps({"id": 0, "data":"toto"})))
+		s.send(convert(json.dumps({"id": 0, "data":"toto", "port":"5844"})))
 		value = s.recv(1024)
 		data = json.loads(value)
-		#self.assertEqual(data, bytes(json.dumps({"id": 0, "data":"toto"}), "utf-8"))
-		s.close()
+		self.assertEqual(data["id"], 1)
+		self.assertEqual(data["data"], "toto")
+		self.assertEqual(data["ip"], "127.0.0.1")
+		self.assertEqual(data["port"], "5844")
 
-	def test_broadcast(self):
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.assertEqual(s.connect_ex((address, port)), 0)
-		data_to_send = {"id": 0, "data":"toto"}
-		s.send(convert(json.dumps(data_to_send)))
-		value = s.recv(1024)
-		data = json.loads(value)
-		print(data)
-		print(data_to_send)
-#				self.assertEqual(data["id"], data_to_send["id"])
-#				self.assertEqual(data["data"], data_to_send["data"])
-		s.close()		
+		s.close()
 
 if __name__ == '__main__':
 	print(tracker)

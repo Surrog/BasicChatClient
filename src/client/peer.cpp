@@ -6,8 +6,8 @@
 
 namespace client
 {
-	peer::peer(main& m, std::string ip, unsigned short port)
-		:track(m), sock(m.service), write_strand(m.service), ip(ip), port(port), read_buff()
+	peer::peer(main& m, std::string ip, unsigned short port, std::string id)
+		:track(m), sock(m.service), write_strand(m.service), ip(ip), port(port), read_buff(), user(id)
 	{}
 
 	peer::peer(main& m, asio::ip::tcp::socket sock)
@@ -35,7 +35,7 @@ namespace client
 		{
 			if (ec || !common::message::deserialize(read_buff.data(), read_buff.data() + size, read_mess) || !handle_message(read_mess))
 			{
-				std::cout << "error on peer " << id << ':' << port << std::endl;
+				std::cout << "error on peer " << user << ':' << port << std::endl;
 				track.cleanup_failed_client(self);
 				sock.close();
 				return;
@@ -46,14 +46,14 @@ namespace client
 
 	bool peer::handle_message(const common::message& mess)
 	{
-		if (id.empty() && mess.id != common::message::id_t::LOG_ME)
+		if (user.empty() && mess.id != common::message::id_t::LOG_ME)
 		{
 			return false;
 		}
 
 		if (mess.id == common::message::id_t::LOG_ME)
 		{
-			id = mess.data;
+			user = mess.data;
 			ip = sock.local_endpoint().address().to_string();
 			port = sock.local_endpoint().port();
 			track.register_connected_client(shared_from_this(), true);
@@ -61,7 +61,7 @@ namespace client
 
 		if (mess.id == common::message::id_t::MESSAGE)
 		{
-			std::cout << id << ':' << mess.data << std::endl;
+			std::cout << user << ':' << mess.data << std::endl;
 		}
 
 		return true;
