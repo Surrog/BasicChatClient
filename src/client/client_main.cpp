@@ -34,15 +34,15 @@ namespace client
 		server_sock.async_read_some(
 			asio::buffer(server_buff)
 			, [this](asio::error_code ec, std::size_t size)
-		{
-			if (ec || !common::message::deserialize(server_buff.data(), server_buff.data() + size, server_mess) || !handle_server_message(server_mess))
 			{
-				std::cerr << "error on server " << ec << " message size: " << size << std::endl;
-				server_sock.close();
-				return;
-			}
-			setup_server_read();
-		});
+				if (ec || !common::message::deserialize(server_buff.data(), server_buff.data() + size, server_mess) || !handle_server_message(server_mess))
+				{
+					std::cerr << "error on server " << ec << " message size: " << size << std::endl;
+					server_sock.close();
+					return;
+				}
+				setup_server_read();
+			});
 	}
 
 	bool main::handle_server_message(const common::message& mess)
@@ -145,23 +145,25 @@ namespace client
 						std::cout << p.first << std::endl;
 					}
 					});
+				return;
 			}
-			else
+
+			auto pos = buffer.find('|');
+			if (pos != std::string::npos)
 			{
-				auto pos = buffer.find('|');
-				if (pos != std::string::npos)
+				asio::post(peer_strand, [this, username = buffer.substr(0, pos), message = buffer.substr(pos + 1)]() mutable
 				{
-					asio::post(peer_strand, [this, username = buffer.substr(0, pos), message = buffer.substr(pos + 1)] () mutable
+					if (message.size() > 512)
 					{
-						if (message.size() > 512)
-						{
-							std::cout << "Warning: message limit 512 character !\n";
-							message.resize(512);
-						}
-						peer_lookout_and_send_message(username, message);
-					});
-				}
+						std::cout << "Warning: message limit 512 character !\n";
+						message.resize(512);
+					}
+					peer_lookout_and_send_message(username, message);
+				});
+				return;
 			}
+
+			std::cout << "unknown command\n";
 		}
 	}
 
