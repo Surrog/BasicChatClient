@@ -52,7 +52,7 @@ example: `localhost:1337|comment est votre blanquette ?`
 # Current Limitation | TODOs
 -	Support of nat traversing to be tested, to be supported properly in next iteration
 -	Current tests are lacking.
--	Simulatenous communication with a loot a client will lead to chaotic UI, a proper GUI should be done.
+-	Simulatenous communication with a lot a client will lead to chaotic UI, a proper GUI should be done.
 -	User authentification is non-existent, users can impersonate each others.
 -	No ssl support yet, messages are not encrypted
 -	Current memory pattern include allocation/deallocation in the main loop, which may lead to fragmented memory in the long run : moving to circular buffers & memory pools should greatly improve overall performances.
