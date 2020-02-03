@@ -4,6 +4,7 @@ import os
 import subprocess
 import socket
 import json
+import sys
 
 
 bin_path = os.path.join(os.getcwd(), "..", "..", "bin")
@@ -14,6 +15,13 @@ else:
 
 address = "localhost"
 port = 8752
+
+def convert(val):
+	if sys.version < 3:
+		return str(val)
+	else:
+		return bytes(val, "utf-8")
+
 
 class TrackerTest(unittest.TestCase):
 	@classmethod
@@ -37,7 +45,7 @@ class TrackerTest(unittest.TestCase):
 	def test_bad_authent(self):
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.assertEqual(s.connect_ex((address, port)), 0)
-		s.send(bytes(json.dumps({"id": -1, "data":"toto"}), "utf-8"))
+		s.send(convert(json.dumps({"id": -1, "data":"toto"})))
 		try:
 			with self.assertRaises(ConnectionResetError) as cm:
 				s.recv(1024)
@@ -49,7 +57,7 @@ class TrackerTest(unittest.TestCase):
 	def test_authent(self):
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.assertEqual(s.connect_ex((address, port)), 0)
-		s.send(bytes(json.dumps({"id": 0, "data":"toto"}), "utf-8"))
+		s.send(convert(json.dumps({"id": 0, "data":"toto"})))
 		value = s.recv(1024)
 		data = json.loads(value)
 		#self.assertEqual(data, bytes(json.dumps({"id": 0, "data":"toto"}), "utf-8"))
@@ -59,7 +67,7 @@ class TrackerTest(unittest.TestCase):
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.assertEqual(s.connect_ex((address, port)), 0)
 		data_to_send = {"id": 0, "data":"toto"}
-		s.send(bytes(json.dumps(data_to_send), "utf-8"))
+		s.send(convert(json.dumps(data_to_send)))
 		value = s.recv(1024)
 		data = json.loads(value)
 		print(data)

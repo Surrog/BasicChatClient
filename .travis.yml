@@ -27,4 +27,3 @@ script:
   - scan-build cmake --build . --config Debug -- -j2
   - scan-build cmake --build . --config Release -- -j2
   - cd ../src/tests
-  - python tracker.py

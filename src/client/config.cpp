@@ -10,7 +10,7 @@ namespace client
 		result.thread_number = val.get("thread_number", result.thread_number).asInt();
 		result.username = val.get("username", "").asString();
 		result.server_ip = val.get("server_ip", result.server_ip).asInt();
-		result.port = val.get("port", result.port).asInt();
+		result.server_port = val.get("server_port", result.server_port).asInt();
 
 		return result;
 	}
@@ -20,6 +20,6 @@ namespace client
 		val["thread_number"] = config.thread_number;
 		val["username"] = config.username;
 		val["server_ip"] = config.server_ip;
-		val["port"] = config.port;
+		val["server_port"] = config.server_port;
 	}
 }
