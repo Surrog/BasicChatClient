@@ -25,6 +25,12 @@ namespace client
 
 			new_peer->setup_read();
 
+			common::message login;
+			login.id = common::message::id_t::LOG_ME;
+			login.data = conf.username;
+			login.port = conf.listening_port;
+
+			new_peer->write_buffer(login);
 			});
 	}
 
@@ -65,10 +71,10 @@ namespace client
 		std::cout << "Could not find user: " << username << '\n';
 	}
 
-	void main::register_connected_client(const std::shared_ptr<peer>& cli, bool was_known)
+	void main::register_connected_client(const std::shared_ptr<peer>& cli, bool is_known)
 	{
-		asio::post(peer_strand, [this, cli, was_known] {
-			if (was_known)
+		asio::post(peer_strand, [this, cli, is_known] {
+			if (is_known)
 			{
 				known_peers.erase(cli->username());
 			}
@@ -112,7 +118,7 @@ namespace client
 		std::string buffer;
 		while (!service.stopped())
 		{
-			std::cin >> buffer;
+			std::getline(std::cin, buffer);
 			if (buffer == "users")
 			{
 				asio::post(peer_strand, [this]() {
@@ -122,7 +128,7 @@ namespace client
 						std::cout << p.first << std::endl;
 					}
 
-					std::cout << "known peers : " << known_peers.size() << '\n' << std::endl;
+					std::cout << "not connected peers : " << known_peers.size() << '\n' << std::endl;
 					for (const auto& p : known_peers)
 					{
 						std::cout << p.first << std::endl;

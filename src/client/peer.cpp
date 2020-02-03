@@ -36,6 +36,7 @@ namespace client
 			if (ec || !common::message::deserialize(read_buff.data(), read_buff.data() + size, read_mess) || !handle_message(read_mess))
 			{
 				std::cout << "error on peer " << id << ':' << port << std::endl;
+				track.cleanup_failed_client(self);
 				sock.close();
 				return;
 			}
@@ -55,6 +56,7 @@ namespace client
 			id = mess.data;
 			ip = sock.local_endpoint().address().to_string();
 			port = sock.local_endpoint().port();
+			track.register_connected_client(shared_from_this(), true);
 		}
 
 		if (mess.id == common::message::id_t::MESSAGE)
