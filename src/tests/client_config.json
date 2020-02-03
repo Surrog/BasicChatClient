@@ -1,0 +1,7 @@
+{
+	"listening_port" : 5750,
+	"server_ip" : "localhost",
+	"server_port" : "8752",
+	"thread_number" : 4,
+	"username" : "tutu"
+}

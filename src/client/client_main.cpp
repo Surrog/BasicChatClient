@@ -34,6 +34,27 @@ namespace client
 			});
 	}
 
+	void main::setup_server_read()
+	{
+		server_sock.async_read_some(
+			asio::buffer(server_buff)
+			, [this](asio::error_code ec, std::size_t size)
+		{
+			if (ec || !common::message::deserialize(server_buff.data(), server_buff.data() + size, server_mess) || !handle_message(server_mess))
+			{
+				std::cout << "error on server message: " << server_buff << std::endl;
+				server_sock.close();
+				return;
+			}
+			setup_server_read();
+		});
+	}
+
+	bool main::handle_message(const common::message& mess)
+	{
+		return false;
+	}
+
 	void main::peer_lookout_and_send_message(const std::string username, const std::string& message)
 	{
 		common::message mess;
@@ -90,31 +111,8 @@ namespace client
 			});
 	}
 
-	void main::run()
+	void main::handle_commandline()
 	{
-		std::vector<std::thread> thds;
-
-		auto thread_num = std::min(conf.thread_number, max_thread);
-
-		for (int i = 0; i < thread_num - 1; i++)
-		{
-			thds.emplace_back([this]() {
-				service.run();
-				});
-		}
-		thds.emplace_back([this]() {
-			service.run();
-			});
-
-		asio::ip::tcp::endpoint ep(asio::ip::tcp::v4(), conf.listening_port);
-		incoming_connection.open(ep.protocol());
-		incoming_connection.set_option(asio::ip::tcp::acceptor::reuse_address(true));
-		incoming_connection.bind(ep);
-		incoming_connection.listen();
-
-		std::cout << "start listening on port: " << conf.listening_port << '\n';
-		start_accept();
-
 		std::string buffer;
 		while (!service.stopped())
 		{
@@ -142,11 +140,70 @@ namespace client
 				{
 					asio::post(peer_strand, [this, username = buffer.substr(0, pos), message = buffer.substr(pos + 1)]()
 					{
+						if (message.size() > 512)
+						{
+							std::cout << "Warning: message limit 512 character !\n";
+						}
 						peer_lookout_and_send_message(username, message);
 					});
 				}
 			}
 		}
+	}
+
+	void main::run()
+	{
+		std::vector<std::thread> thds;
+
+		auto thread_num = std::min(conf.thread_number, max_thread);
+
+		for (int i = 0; i < thread_num - 1; i++)
+		{
+			thds.emplace_back([this]() {
+				service.run();
+				});
+		}
+		thds.emplace_back([this]() {
+			service.run();
+			});
+
+		asio::ip::tcp::endpoint ep(asio::ip::tcp::v4(), conf.listening_port);
+		incoming_connection.open(ep.protocol());
+		incoming_connection.set_option(asio::ip::tcp::acceptor::reuse_address(true));
+		incoming_connection.bind(ep);
+		incoming_connection.listen();
+
+		std::cout << "start listening on port: " << conf.listening_port << '\n';
+		start_accept();
+
+		asio::ip::tcp::resolver resolver(service);
+		asio::error_code ec;
+		auto eps = resolver.resolve(conf.server_ip, conf.server_port, ec);
+
+		asio::async_connect(server_sock, eps,
+			[this, eps](asio::error_code ec, asio::ip::tcp::endpoint ep) {
+				if (ec)
+				{
+					std::cout 
+						<< "Failed to connect to server: " << ep.address().to_string() << ':' << ep.port() << '\n'
+						<< "You may want to check if the configuration file matches\n"
+						<< "retry in 30s" << std::endl;
+					return;
+				}
+
+				common::message login;
+				login.id = common::message::id_t::LOG_ME;
+				login.data = conf.username;
+				login.port = conf.listening_port;
+				std::string buffer;
+				asio::write(server_sock, asio::buffer(buffer), ec);
+				if (!ec)
+				{
+					setup_server_read();
+				}
+			});
+
+		handle_commandline();
 
 		for (auto& t : thds)
 		{

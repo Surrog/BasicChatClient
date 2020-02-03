@@ -1,0 +1,5 @@
+{
+	"anonymous_client_timeout" : 10,
+	"port" : 8752,
+	"thread_number" : 4
+}

@@ -45,15 +45,23 @@ int main(int argc, char** argv)
 		}
 
 		config.username = val;
-		std::ofstream stream(config_path);
-		Json::Value json_config;
-		client::config::config_to_json(config, json_config);
-		stream << json_config;
+
+		std::cout << "saving configuration ? (y/n)\n";
+		std::cin >> val;
+
+		if (val == "y")
+		{
+			std::ofstream stream(config_path);
+			Json::Value json_config;
+			client::config::config_to_json(config, json_config);
+			stream << json_config;
+			std::cout << "configuration saved !\n";
+		}
 	}
 
 	std::cout << "usage:\n\t" << R"_(`<user>|<message>`)_" << "\n\t" << R"_(`users` will get the list of currently logged users)_" << '\n';
-	std::cout << '\t' << R"_(example: `toto|hello world !`)_" << "\n\t" << R"_(example: `localhost:1337|comment est votre blanquette ?)_" << '\n';
-
+	std::cout << '\t' << R"_(example: `toto|hello world !`)_" << "\n\t" << R"_(example: `localhost:1337|comment est votre blanquette ?`)_" << '\n';
+	std::cout << "Message limit: 512 characters\n";
 	std::cout << "\nhello user '" << config.username << "'\n";
 	client::main m(config);
 

@@ -18,3 +18,5 @@ build_script:
     cd C:\project\BasicChatClient\src\tests
 
     python tracker.py
+
+    python client.py
