@@ -37,7 +37,7 @@ namespace client
 		{
 			if (ec || !common::message::deserialize(server_buff.data(), server_buff.data() + size, server_mess) || !handle_server_message(server_mess))
 			{
-				std::cout << "error on server " << ec << " message size: " << size << std::endl;
+				std::cerr << "error on server " << ec << " message size: " << size << std::endl;
 				server_sock.close();
 				return;
 			}
@@ -151,11 +151,12 @@ namespace client
 				auto pos = buffer.find('|');
 				if (pos != std::string::npos)
 				{
-					asio::post(peer_strand, [this, username = buffer.substr(0, pos), message = buffer.substr(pos + 1)]()
+					asio::post(peer_strand, [this, username = buffer.substr(0, pos), message = buffer.substr(pos + 1)] () mutable
 					{
 						if (message.size() > 512)
 						{
 							std::cout << "Warning: message limit 512 character !\n";
+							message.resize(512);
 						}
 						peer_lookout_and_send_message(username, message);
 					});
