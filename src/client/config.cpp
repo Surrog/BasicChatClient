@@ -13,7 +13,7 @@ namespace client
 		result.thread_number = val.get("thread_number", result.thread_number).asInt();
 		result.username = val.get("username", "").asString();
 		result.server_ip = val.get("server_ip", result.server_ip).asString();
-		result.server_port = val.get("server_port", result.server_port).asInt();
+		result.server_port = val.get("server_port", result.server_port).asString();
 		result.listening_port = val.get("listening_port", result.listening_port).asInt();
 
 		return result;
@@ -30,8 +30,9 @@ namespace client
 
 	int config::randomize_port()
 	{
-		std::default_random_engine generator;
+		std::random_device generator;
 		std::uniform_int_distribution<int> distribution(1001, 9999);
-		return distribution(generator);
+		int val = distribution(generator);
+		return val;
 	}
 }
