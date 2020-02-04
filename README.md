@@ -16,7 +16,9 @@ Should work on any major OS
 
 ## Tracker
 Optional.
+
 Allow clients to retrieve easily current active client.
+
 First launch will trigger the creation of a configuration file.
 
 Configuration can be modified to adjust behavior:
@@ -29,8 +31,10 @@ Configuration can be modified to adjust behavior:
 
 ## Client
 Command line client
+
 Allow you to send and receive message from other client, and can pull client list from server.
-First launche will trigger the creator of a configuration file, that you can modify:
+
+First launch will trigger the creator of a configuration file, that you can modify:
 
 `
 {
