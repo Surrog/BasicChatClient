@@ -5,7 +5,7 @@ Simple local chat client for toying purpose
   - mkdir bin
   - cd bin/
   - cmake ..
-  - scan-build cmake --build . --config Release -- -j2
+  - cmake --build . --config Release -- -j2
 
 Should work on any major OS
 
