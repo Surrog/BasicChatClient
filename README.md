@@ -34,7 +34,7 @@ Command line client
 
 Allow you to send and receive message from other client, and can pull client list from server.
 
-First launch will trigger the creator of a configuration file, that you can modify:
+First launch will trigger the creation of a configuration file, that you can then modify:
 
 `
 {
